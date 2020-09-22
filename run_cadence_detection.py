@@ -1,7 +1,32 @@
 """
 Here is the documentation of this project
 
+Cadence detection is implemented using CNN spectrogram classification.
 
+Steps of the project
+
+1. Microphone records sound using PyAudio
+2. The audio array is filtered
+3. After filtering FFT is computed
+4. FFT 2D NUmpy Array is passed to matplotlib which creates 3d (64,64,3) image
+5. An image converted to 3d NumPY array using Pillow
+5. Loaded model predicts using 3d Numpy array
+
+Conclusions after tests.
+
+* Using only one performer's data successes detecting Cadence part during test procedure
+and succeeds for detecting wrong cadences before or after
+* Turning on cadence detection 30 seconds earlier reduces the probability of failure
+* Using grayscale images reduces the image size which accelerates classification
+* Using several performer's data failed detecting Cadence
+____There are several reasons for this failure
+        1. There are no identical Cadences. Each cadence has it's features and similarities
+        2. Some similar parts of Cadence can be found before or after cadence
+        3. The sequence is not considered in this project
+* To increase the efficiency of CNN audio data is filtered ... gain, volume and bandwidth
+* High volume of sound increases th noise
+* Librosa mel-spectogram failed to plot differentiable spectrogram
+* Instead of librosa matplotlib specgram was used for nfft and plotting
 """
 import matplotlib
 from PIL import Image
@@ -29,7 +54,7 @@ class note_detection:
     nfft = 1024  # 256#1024 #NFFT value for spectrogram
     overlap = 1000  # 512 #overlap value for spectrogram
     rate = mic_read.RATE  # sampling rate
-    checklist = [100]
+
     ############### Variables ###############
     bool = True
     prediction = 'note'
@@ -71,7 +96,6 @@ class note_detection:
         matplotlib_obj.savefig('Data_sets/test_images/Note' + timestr + '.png')
 
 
-
     """
     predict:
     predicts the cadence based on model 
@@ -99,15 +123,42 @@ class note_detection:
 
         return np.array(pil_image)
 
+    def set_gain(self, datalist, numpy_gain):
+        print("Max number in array", np.amax(datalist))
+        print("Min number in array", np.amin(datalist))
+
+        for i in range(len(datalist)):
+            if datalist[i] < numpy_gain and datalist[i] > 0:
+                datalist[i] = random.randint(0, 2)
+            elif datalist[i] < 0 and datalist[i] > -1 * numpy_gain:
+                datalist[i] = random.randint(-2, 0)
+            # datalist[i] = 0
+
+        print("##########")
+        print("Max number in array", np.amax(datalist))
+        print("Min number in array", np.amin(datalist))
+
+        return datalist
+
+    def update_volume(self, datalist, volume):
+        """ Change value of list of audio chunks """
+        sound_level = (volume / 100.)
+        print("inside update_voilume")
+        for i in range(len(datalist)):
+            chunk = np.fromstring(datalist[i], np.int16)
+
+            chunk = chunk * sound_level
+
+            datalist[i] = chunk.astype(np.int16)
+
+        return datalist
 
 
     def update_fig(self, n, stream, pa, fig, model, window, im):
 
-        image = Image.open('cadense_image.png')
         print("Start Update Fig")
         data = self.get_sample(stream, pa)
         arr2D, freqs, bins = self.get_specgram(data, self.rate)
-
         im_data = im.get_array()
         arr2D[arr2D < 0.9] = 0.01
         if n < self.SAMPLES_PER_FRAME:
@@ -181,7 +232,7 @@ class note_detection:
                 a += 1
                 # Update function requires integer input
                 count += 1
-                # Update figue
+                # Update figure
                 self.update_fig(count, stream, pa, fig, model, window, im)
                 # Convert matplotlib Object to 3D numpy Array
                 img_pred = np.expand_dims(self.matplotlib_to_numpy(fig), axis=0)
