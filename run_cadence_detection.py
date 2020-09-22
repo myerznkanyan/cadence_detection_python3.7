@@ -27,6 +27,7 @@ ____There are several reasons for this failure
 * High volume of sound increases th noise
 * Librosa mel-spectogram failed to plot differentiable spectrogram
 * Instead of librosa matplotlib specgram was used for nfft and plotting
+
 """
 import matplotlib
 from PIL import Image
