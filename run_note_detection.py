@@ -1,5 +1,5 @@
 """
-
+Here is the documentation of this project
 """
 import matplotlib
 from PIL import Image
