@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import numpy as np
 from keras.preprocessing import image
 from keras.models import load_model
@@ -249,4 +249,4 @@ print("HighLight person finnish")
 
 
 
->>>>>>> First commit
+
