@@ -28,7 +28,7 @@ and succeeds for detecting wrong cadences before or after
 * Instead of librosa matplotlib specgram was used for nfft and plotting 
 
 
-###All collected spectrogram images and trained models are available.
+### All collected spectrogram images and trained models are available.
 
 
 

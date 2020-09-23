@@ -8,7 +8,7 @@ keras - v2.3.1
 pysimplegui - v4.29.0
 '''
 
-from run_cadnence_detection import note_detection
+from run_cadence_detection import cadence_detection
 
 
-note_detection().start()
+cadence_detection().start()

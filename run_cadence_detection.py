@@ -42,13 +42,14 @@ import numpy as np
 from keras.models import load_model
 #import PySimpleGUI as sg
 import time
+import random
 
 ############### Import Modules ###############
 
 import mic_read
 
 
-class note_detection:
+class cadence_detection:
     ############### Constants ###############
 
     SAMPLES_PER_FRAME = 2 # Number of mic reads concatenated within a single window
@@ -120,7 +121,7 @@ class note_detection:
         fig.canvas.draw()
         pil_image = PIL.Image.frombytes('RGB', fig.canvas.get_width_height(),
                                         fig.canvas.renderer.tostring_rgb())
-        print("Yes Works")
+        # print("Yes Works")
 
         return np.array(pil_image)
 
@@ -159,7 +160,9 @@ class note_detection:
 
         print("Start Update Fig")
         data = self.get_sample(stream, pa)
-        arr2D, freqs, bins = self.get_specgram(data, self.rate)
+        data_updated = self.set_gain(data, 10)
+        data_updated = self.update_volume(data_updated, 10)
+        arr2D, freqs, bins = self.get_specgram(data_updated, self.rate)
         im_data = im.get_array()
         arr2D[arr2D < 0.9] = 0.01
         if n < self.SAMPLES_PER_FRAME:
@@ -218,6 +221,7 @@ class note_detection:
                  bbox={'facecolor': 'white', 'edgecolor': 'none', 'pad': 10})
 
         # Setup PySimpleGUI layout and window
+        """       
         sg.theme('DarkAmber')
 
         layout = [[sg.Text(self.prediction, size=(10, 1), font=('Helvetica', 36), text_color='white', key='_Note_')],
@@ -225,7 +229,7 @@ class note_detection:
                   [sg.Button('Exit', size=(5, 1), font=('Helvetica', 16))]]
 
         window = sg.Window('Note detector', layout, size=(320, 320))
-
+        """
         # Continously calls update_fig function to get new spectrogram
         count = -1
         try:

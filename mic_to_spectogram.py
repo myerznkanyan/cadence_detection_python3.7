@@ -13,6 +13,7 @@ from matplotlib.colors import LogNorm
 import numpy as np
 import time
 import random # for debugging
+import math
 
 ############### Import Modules ###############
 import mic_read
@@ -90,7 +91,9 @@ def set_gain(datalist, numpy_gain):
 
 
 
-
+def save_img(matplotlib_obj):
+    timestr = time.strftime("%Y.%m.%d-%H.%M.%S")
+    matplotlib_obj.savefig('test_images/Note' + timestr + '.png')
 
 
 
@@ -115,10 +118,12 @@ def update_fig(n):
     print("Mic data ", data)
     #print(data.shape)
     data_updated = set_gain(data, 10)
-    data_updated = update_volume(data_updated, 10)
+    volume =(5 / (math.log10(np.amax(data_updated))))*10
+    print(volume)
+    data_updated = update_volume(data_updated, volume)
     #data_updated = set_gain(data_updated, 10)
     #set_gain(data,10)
-    print("Mic data updated : ",data_updated)
+    #print("Mic data updated : ",data_updated)
     #print("n :",n)
     arr2D, freqs, bins = get_specgram(data_updated, rate)
     im_data = im.get_array()
@@ -141,11 +146,7 @@ def update_fig(n):
     #plt.margins(0, 0)
     #plt.gca().xaxis.set_major_locator(plt.NullLocator())
     #plt.gca().yaxis.set_major_locator(plt.NullLocator())
-    """ try:
-        plt.savefig('Photos/gray.jpeg')
-    except:
-        print('')
-    """
+    save_img(plt)
     return im,
 
 

@@ -19,7 +19,7 @@ seed(1)
 # define ratio of pictures to use for validation
 val_ratio = 0.2
 # copy training dataset images into subdirectories
-src_directory = 'Data_sets/test_images'
+src_directory = 'test_images'
 for file in listdir(src_directory):
 	src = src_directory + '/' + file
 	dst_dir = 'train/'
