@@ -1,8 +1,5 @@
 """
-run_specgram.py
-Created By Alexander Yared (akyared@gmail.com)
-Main Script for the Live Spectrogram project, a real time spectrogram
-visualization tool
+
 Dependencies: matplotlib, numpy and the mic_read.py module
 """
 ############### Import Libraries ###############
@@ -33,12 +30,10 @@ inputs: audio stream and PyAudio object
 outputs: int16 array
 """
 
-
 def get_sample(stream, pa):
     data = mic_read.get_data(stream, pa)
     print("Inside get_sample")
     return data
-
 
 """
 get_specgram:
@@ -48,13 +43,11 @@ output: 2D Spectrogram Array, Frequency Array, Bin Array
 see matplotlib.mlab.specgram documentation for help
 """
 
-
 def get_specgram(signal, rate):
     arr2D, freqs, bins = specgram(signal, window=window_hanning,
                                   Fs=rate, NFFT=nfft, noverlap=overlap)
     print("Inside get_spectogram")
     return arr2D, freqs, bins
-
 
 """
 update_fig:
@@ -89,14 +82,9 @@ def set_gain(datalist, numpy_gain):
     return datalist
 
 
-
-
 def save_img(matplotlib_obj):
     timestr = time.strftime("%Y.%m.%d-%H.%M.%S")
     matplotlib_obj.savefig('test_images/Note' + timestr + '.png')
-
-
-
 
 
 def update_volume(datalist, volume):
