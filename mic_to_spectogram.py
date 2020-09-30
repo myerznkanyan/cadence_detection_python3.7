@@ -11,12 +11,15 @@ import numpy as np
 import time
 import random # for debugging
 import math
+import scipy
 
 ############### Import Modules ###############
 import mic_read
 
 ############### Constants ###############
 # SAMPLES_PER_FRAME = 10 #Number of mic reads concatenated within a single window
+from scipy.signal import butter, lfilter
+
 SAMPLES_PER_FRAME = 2
 nfft = 1024  # 256#1024 #NFFT value for spectrogram
 overlap = 1000 # 512 #overlap value for spectrogram
@@ -100,34 +103,70 @@ def update_volume(datalist, volume):
 
     return datalist
 
+fs = 5000.0
+lowcut = 500.0
+highcut = 1250.0
+
+
+def butter_bandpass(lowcut, highcut, fs, order=5):
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    b, a = butter(order, [low, high], btype='band')
+    return b, a
+
+
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
+    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
+
 
 def update_fig(n):
+    fs = 5000.0
+    lowcut = 100.0
+    highcut = 2000.0
     data = get_sample(stream, pa)
-    print("Mic data ", data)
+    #print("Mic data ", data)
     #print(data.shape)
     data_updated = set_gain(data, 10)
     volume =(5 / (math.log10(np.amax(data_updated))))*10
-    print(volume)
+    #print(volume)
     data_updated = update_volume(data_updated, volume)
+    #data_updated = butter_bandpass_filter(data, lowcut, highcut, fs, order=5)
     #data_updated = set_gain(data_updated, 10)
     #set_gain(data,10)
     #print("Mic data updated : ",data_updated)
     #print("n :",n)
     arr2D, freqs, bins = get_specgram(data_updated, rate)
     im_data = im.get_array()
-    arr2D[arr2D < 0.99] = 0.01
+    arr2D[arr2D < 0.5] = 0.01
+    #arr2D[arr2D > 0.5] = 0.99
     #print(arr2D)
     # print(type(n))
     # print(n)
     #print("Samples per frame", SAMPLES_PER_FRAME)
     if n < SAMPLES_PER_FRAME:
         im_data = np.hstack((im_data, arr2D))
+        x1, x2, y1, y2 = plt.axis()
+        plt.axis((x1, x2, 100, 1000))
         im.set_array(im_data)
+        print("x1", x1)
+        print("x2", x2)
+        print("y1", y1)
+        print("y2", y2)
     else:
         keep_block = arr2D.shape[1] * (SAMPLES_PER_FRAME - 1)
         im_data = np.delete(im_data, np.s_[:-keep_block], 1)
         im_data = np.hstack((im_data, arr2D))
+        x1, x2, y1, y2 = plt.axis()
+        plt.axis((x1, x2, 100, 1000))
         im.set_array(im_data)
+
+        print("x1", x1)
+        print("x2", x2)
+        print("y1", y1)
+        print("y2", y2)
     #plt.gca().set_axis_off()
     #plt.subplots_adjust(top=1, bottom=0, right=1, left=0,
     #                    hspace=0, wspace=0)
